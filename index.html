@@ -1,15 +1,47 @@
-<html>
-    <head><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
-        <link rel="stylesheet" href="index.css">
-    </head>
-    <body>
-        <h1>Blackjack</h1>
-        <p id="message-el">Want to play a round?</p>
-        <p id="cards-el">Cards:</p>
-        <p id="sum-el">Sum:</p>
-        <button onclick="startGame()">START GAME</button>
-        <button onclick="newCard()">NEW CARD</button>
-        <p id="player-el"></p>
-        <script src="index.js"></script>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- The dealers rack of chips -->
+    <div class="rack"></div>
+
+    <div class="cards__container">
+        <!-- Dealers cards drawn -->
+        <div class="dealer-cards__container">
+            <div class="card"></div>
+        </div>
+        <!-- Players cards drawn -->
+        <div class="player-cards__container">
+            <div class="card"></div>
+        </div>
+    </div>
+
+    <!-- Players bet amount -->
+    <div class="player-bet">
+        <span class="player-bet__amount">0</span>
+    </div>
+
+    <div class="buttons__container">
+        <button class="btn"></button>
+        <button class="btn"></button>
+        <button class="btn"></button>
+    </div>
+
+    <div class="player">
+        <span class="player__balance"></span>
+        <div class="bet-options">
+            <button class="btn-bet">+</button>
+            <span class="current-bet-amount">0</span>
+            <button class="btn-bet">-</button>
+        </div>
+    </div>
+</body>
 </html>

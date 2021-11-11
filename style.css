@@ -1,0 +1,60 @@
+*, 
+*::before, 
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: green;
+    background-image: url(images/table.png);
+    background-size: cover;
+}
+
+button {
+    cursor: pointer;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.rack {
+    width: 150px;
+    height: 35px;
+    background-color: white;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.cards__container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-height: 3px;
+    /* width: 5px; */
+    background-color: orange;
+}
+
+.cards__container > * + * {
+    margin-top: 20px;
+}
+
+.dealer-cards__container {
+    display: flex;
+}
+
+.card {
+    width: 25px;
+    aspect-ratio: 5/7;
+    border: 1px solid black;
+    border-radius: 5px;
+}
