@@ -1,3 +1,5 @@
+/* Global Styles */
+
 *, 
 *::before, 
 *::after {
@@ -16,6 +18,7 @@ body {
 
 button {
     cursor: pointer;
+    display: inline-block;
 }
 
 img {
@@ -23,38 +26,133 @@ img {
     display: block;
 }
 
-.rack {
-    width: 150px;
-    height: 35px;
-    background-color: white;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+.container {
+    width: 85%;
+    max-width: 650px;
+    margin: 0 auto;
+    height: calc(100vh - 55px);
+    flex-direction: column;
+}
+
+.flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Header Styles */
+header {
+    height: 55px;
+    background-color: rgba(113, 16, 0, 0.75);
+}
+
+header > p {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 1.5rem;
+}
+
+/* Cards Styles */
+.cards-container {
+    height: 70%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.card {
+    width: 75px;
+    aspect-ratio: 5 / 7;
+    border: 1px solid #777777;
+    border-radius: 5px;
+}
+
+.card + .card {
+    margin-left: -40px;
+}
+
+.dealer,
+.player {
+    position: relative;
+}
+
+.message {
+    color: #FFFFFF;
+    text-transform: uppercase;
     position: absolute;
-    top: 0;
+    right: calc(100% + 1em);
+}
+
+/* Game actions */
+.play-options {
+    flex-direction: column;
+}
+
+.options {
+    margin-top: 0.5em;
+}
+
+.btn {
+    color: #FFFFFF;
+    padding: 0.25em 1em;
+    background-color: rgb(0, 59, 136);
+    border: 1px solid #FFFFFF;
+    border-radius: 3em;
+    transition: background-color 100ms ease-out;
+}
+
+.btn + .btn {
+    margin-left: 0.5em;
+}
+
+.btn:active {
+    background-color: rgb(15, 100, 211);
+}
+
+/* Betting Buttons */
+.bet {
+    width: 75%;
+    height: 35px;
+    max-width: 500px;
+    border-top-left-radius: 5em;
+    border-top-right-radius: 5em;
+    color: #FFFFFF;
+    background-color: rgb(43, 110, 255);
+    position: absolute;
+    bottom: 0;
     left: 50%;
     transform: translateX(-50%);
 }
 
-.cards__container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    min-height: 3px;
-    /* width: 5px; */
-    background-color: orange;
+.bet > * {
+    flex: 1;
+    font-size: 1.75rem;
 }
 
-.cards__container > * + * {
-    margin-top: 20px;
+.btn-bet-option {
+    height: 100%;
+    aspect-ratio: 1;
+    border: 0;
+    color: #FFFFFF;
+    background-color: rgb(43, 110, 255);
+    transition: background-color 100ms ease-out;
 }
 
-.dealer-cards__container {
-    display: flex;
+.btn-bet-option:active {
+    background-color: rgb(0, 59, 136);
 }
 
-.card {
-    width: 25px;
-    aspect-ratio: 5/7;
-    border: 1px solid black;
-    border-radius: 5px;
+.btn-bet-option:nth-of-type(1) {
+    border-top-left-radius: 5em;
+}
+.btn-bet-option:nth-of-type(2) {
+    border-top-right-radius: 5em;
+}
+
+.bet-amount {
+    height: 100%;
+    text-align: center;
+    background-color: rgb(0, 59, 136);
 }

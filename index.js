@@ -1,65 +1,74 @@
-let player = {
-    name: "Zaid",
-    chips: 200
-}
+let playerBalance = 100;
+const playerBalanceEl = document.getElementById('player-balance');
 
-let cards = []
-let sum = 0
-let hasBlackJack = false
-let isAlive = false
-let message = ""
-let messageEl = document.getElementById("message-el")
-let sumEl = document.getElementById("sum-el")
-let cardsEl = document.getElementById("cards-el")
-let playerEl = document.getElementById("player-el")
+// Deck Elements
+const dealerMessage = document.getElementById('dealer-message');
+const playerMessage = document.getElementById('player-message');
+const dealerCardsEl = document.getElementById('dealer-cards');
+const playerCardsEl = document.getElementById('player-cards');
 
-playerEl.textContent = player.name + ": $" + player.chips
+// Bet Elements & Amount
+let betAmount = 0;
+const betAmountEl = document.getElementById('bet-amount');
+const decreaseBetButton = document.getElementById('decrease-bet');
+const increaseBetButton = document.getElementById('increase-bet');
 
-function getRandomCard() {
-    let randomNumber = Math.floor( Math.random()*13 ) + 1
-    if (randomNumber > 10) {
-        return 10
-    } else if (randomNumber === 1) {
-        return 11
-    } else {
-        return randomNumber
-    }
-}
+// Participants Cards On Start
+const playerFirstCards = [];
+const dealerFirstCards = [];
 
-function startGame() {
-    isAlive = true
-    let firstCard = getRandomCard()
-    let secondCard = getRandomCard()
-    cards = [firstCard, secondCard]
-    sum = firstCard + secondCard
-    renderGame()
-}
+// Participant Stats
+let dealerTotal = 0;
+let playerTotal = 0;
 
-function renderGame() {
-    cardsEl.textContent = "Cards: "
-    for (let i = 0; i < cards.length; i++) {
-        cardsEl.textContent += cards[i] + " "
-    }
+// Create Card Element 
+function createCard(cards) {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    dealerCardsEl.appendChild(card);
     
-    sumEl.textContent = "Sum: " + sum
-    if (sum <= 20) {
-        message = "Do you want to draw a new card?"
-    } else if (sum === 21) {
-        message = "You've got Blackjack!"
-        hasBlackJack = true
-    } else {
-        message = "You're out of the game!"
-        isAlive = false
+    for (let card of cards) {
+        const img = document.createElement('img');
+        img.src = 'images/table.png';
     }
-    messageEl.textContent = message
 }
 
+// Get new deck of shuffled cards
+// Draw 2 cards for each(player & dealer)
+// Display cards
+async function getDeckOfCards(callback) {
+    let res = await fetch('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
 
-function newCard() {
-    if (isAlive === true && hasBlackJack === false) {
-        let card = getRandomCard()
-        sum += card
-        cards.push(card)
-        renderGame()        
+    let data = await res.json();
+    console.log(data)
+    const deckId = data.deck_id;
+    console.log(deckId)
+
+    callback(deckId)
+}
+
+getDeckOfCards(drawFirstCards)
+
+function drawFirstCards(deck) {
+    fetch(`https://deckofcardsapi.com/api/deck/${deck}/draw/?count=4`)
+        .then(res => res.json())
+        .then(data => {
+            const { cards } = data;
+
+            cards.forEach((card,index) => {
+                if (index < 2) {
+                    playerFirstCards.push(card)
+                } else {
+                    dealerFirstCards.push(card)
+                }
+            })
+            console.log(playerFirstCards)
+        });
+}
+
+function checkBlackjack(drawnCardsArray) {
+    switch(drawnCardsArray) {
+        case '':
+            break;
     }
 }

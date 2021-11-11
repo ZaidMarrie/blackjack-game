@@ -8,40 +8,42 @@
 
     <!-- Link to external stylesheet -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Link to external JS script -->
+    <script defer src="index.js"></script>
 </head>
 <body>
-    <!-- The dealers rack of chips -->
-    <div class="rack"></div>
+    <header class="flex">
+        <p class="balance">Balance: <span id="player-balance">$100</span></p>
+    </header>
+    <main class="container flex">
+        <div class="cards-container">
+            <div class="dealer">
+                <div class="cards flex" id="dealer-cards">
+                    <p class="message" id="dealer-message"></p>
+                </div>
+            </div>
 
-    <div class="cards__container">
-        <!-- Dealers cards drawn -->
-        <div class="dealer-cards__container">
-            <div class="card"></div>
+            <div class="player">
+                <div class="cards flex" id="player-cards">
+                    <p class="message" id="player-message"></p>
+                </div>
+            </div>
         </div>
-        <!-- Players cards drawn -->
-        <div class="player-cards__container">
-            <div class="card"></div>
+
+        <div class="play-options flex">
+            <button class="btn">Place Bet</button>
+            <div class="options">
+                <button class="btn">Hit</button>
+                <button class="btn">Double</button>
+            </div>
         </div>
-    </div>
 
-    <!-- Players bet amount -->
-    <div class="player-bet">
-        <span class="player-bet__amount">0</span>
-    </div>
-
-    <div class="buttons__container">
-        <button class="btn"></button>
-        <button class="btn"></button>
-        <button class="btn"></button>
-    </div>
-
-    <div class="player">
-        <span class="player__balance"></span>
-        <div class="bet-options">
-            <button class="btn-bet">+</button>
-            <span class="current-bet-amount">0</span>
-            <button class="btn-bet">-</button>
+        <div class="bet flex">
+            <button class="btn-bet-option" id="decrease-bet">-</button>
+            <div class="bet-amount" id="bet-amount">0</div>
+            <button class="btn-bet-option" id="increase-bet">+</button>
         </div>
-    </div>
+    </main>
 </body>
 </html>
