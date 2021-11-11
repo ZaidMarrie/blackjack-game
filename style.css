@@ -1,0 +1,158 @@
+/* Global Styles */
+
+*, 
+*::before, 
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: green;
+    background-image: url(images/table.png);
+    background-size: cover;
+}
+
+button {
+    cursor: pointer;
+    display: inline-block;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+.container {
+    width: 85%;
+    max-width: 650px;
+    margin: 0 auto;
+    height: calc(100vh - 55px);
+    flex-direction: column;
+}
+
+.flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Header Styles */
+header {
+    height: 55px;
+    background-color: rgba(113, 16, 0, 0.75);
+}
+
+header > p {
+    margin: 0;
+    color: #FFFFFF;
+    font-size: 1.5rem;
+}
+
+/* Cards Styles */
+.cards-container {
+    height: 70%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.card {
+    width: 75px;
+    aspect-ratio: 5 / 7;
+    border: 1px solid #777777;
+    border-radius: 5px;
+}
+
+.card + .card {
+    margin-left: -40px;
+}
+
+.dealer,
+.player {
+    position: relative;
+}
+
+.message {
+    color: #FFFFFF;
+    text-transform: uppercase;
+    position: absolute;
+    right: calc(100% + 1em);
+}
+
+/* Game actions */
+.play-options {
+    flex-direction: column;
+}
+
+.options {
+    margin-top: 0.5em;
+}
+
+.btn {
+    color: #FFFFFF;
+    padding: 0.25em 1em;
+    background-color: rgb(0, 59, 136);
+    border: 1px solid #FFFFFF;
+    border-radius: 3em;
+    transition: background-color 100ms ease-out;
+}
+
+.btn + .btn {
+    margin-left: 0.5em;
+}
+
+.btn:active {
+    background-color: rgb(15, 100, 211);
+}
+
+/* Betting Buttons */
+.bet {
+    width: 75%;
+    height: 35px;
+    max-width: 500px;
+    border-top-left-radius: 5em;
+    border-top-right-radius: 5em;
+    color: #FFFFFF;
+    background-color: rgb(43, 110, 255);
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.bet > * {
+    flex: 1;
+    font-size: 1.75rem;
+}
+
+.btn-bet-option {
+    height: 100%;
+    aspect-ratio: 1;
+    border: 0;
+    color: #FFFFFF;
+    background-color: rgb(43, 110, 255);
+    transition: background-color 100ms ease-out;
+}
+
+.btn-bet-option:active {
+    background-color: rgb(0, 59, 136);
+}
+
+.btn-bet-option:nth-of-type(1) {
+    border-top-left-radius: 5em;
+}
+.btn-bet-option:nth-of-type(2) {
+    border-top-right-radius: 5em;
+}
+
+.bet-amount {
+    height: 100%;
+    text-align: center;
+    background-color: rgb(0, 59, 136);
+}
