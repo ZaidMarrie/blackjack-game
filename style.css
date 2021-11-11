@@ -41,6 +41,10 @@ img {
     position: relative;
 }
 
+.disabled {
+    cursor: not-allowed;
+}
+
 /* Header Styles */
 header {
     height: 55px;
