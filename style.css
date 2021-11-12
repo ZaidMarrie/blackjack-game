@@ -58,6 +58,12 @@ header > p {
 }
 
 /* Cards Styles */
+
+.message {
+    font-size: 1.2rem;
+    margin: 0.1em 0;
+}
+
 .cards-container {
     height: 70%;
     display: flex;
@@ -73,6 +79,10 @@ header > p {
     border-radius: 5px;
 }
 
+.card > img {
+    height: 100%;
+}
+
 .card + .card {
     margin-left: -40px;
 }
@@ -82,11 +92,13 @@ header > p {
     position: relative;
 }
 
-.message {
-    color: #FFFFFF;
+.card-total {
+    font-size: 1.5rem;
+    color: rgb(0, 217, 255);
     text-transform: uppercase;
     position: absolute;
     right: calc(100% + 1em);
+    top: 0;
 }
 
 /* Game actions */
@@ -95,7 +107,7 @@ header > p {
 }
 
 .options {
-    margin-top: 0.5em;
+    margin: 0.5em 0;
 }
 
 .btn {
