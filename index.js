@@ -1,8 +1,11 @@
 /* ----------------------------------
 * Initialize Starting State Variables 
 ---------------------------------- */
-let playerBalance = 100;
 let deckId;
+let betAmount = 0;
+let currentRound = 1;
+let playerBalance = 100;
+let stayed = false;
 
 // Participant Stats
 let playerTotal = 0;
@@ -12,67 +15,108 @@ const dealerCards = [];
 
 // Participant Stats Elements
 const message = document.getElementById('message');
-const dealerCardsEl = document.getElementById('dealer-cards');
 const playerCardsEl = document.getElementById('player-cards');
-const dealerCardsTotalEl = document.getElementById('dealer-total');
+const dealerCardsEl = document.getElementById('dealer-cards');
 const playerCardsTotalEl = document.getElementById('player-total');
+const dealerCardsTotalEl = document.getElementById('dealer-total');
 
 // Betting Options Elements
 const hitButton = document.getElementById('hit-btn');
 const stayButton = document.getElementById('stay-btn');
-const doubleButton = document.getElementById('double-btn');
+const doubleBetButton = document.getElementById('double-btn');
 const placeBetButton = document.getElementById('placeBet-btn');
 
 // Select Buttons to Raise & Lower Bet
-let betAmount = 0;
 const betAmountEl = document.getElementById('bet-amount');
 const decreaseBetButton = document.getElementById('decrease-bet');
 const increaseBetButton = document.getElementById('increase-bet');
 const playerBalanceEl = document.getElementById('player-balance');
 
-// Set Game Start State
-function startGame() {
-    hitButton.removeAttribute('disabled');
-    stayButton.removeAttribute('disabled');
-    hitButton.classList.remove('disabled');
-    stayButton.classList.remove('disabled');
-    doubleButton.removeAttribute('disabled');
-    doubleButton.classList.remove('disabled');
+// Update Game Start When A Bet Is Placed
+function initGame(round) {
+    // Disable Placebet When Round Begins
     placeBetButton.classList.add('disabled');
     placeBetButton.setAttribute('disabled', true);
-    decreaseBetButton.classList.add('disabled');
-    increaseBetButton.classList.add('disabled');
-    decreaseBetButton.setAttribute('disabled', true);
-    increaseBetButton.setAttribute('disabled', true);
-    getDeckOfCards(drawStartingCards);
+
+    // Enable Hit, Stay, Double Buttons
+    hitButton.removeAttribute('disabled');
+    stayButton.removeAttribute('disabled');
+    doubleBetButton.removeAttribute('disabled');
+    hitButton.classList.remove('disabled');
+    stayButton.classList.remove('disabled');
+    doubleBetButton.classList.remove('disabled');
 }
 
-// Get New Deck of shuffled Cards & Set DeckID
-async function getDeckOfCards(callback) {
-    try {
-        const fetchUrl = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6';
-        const response = await fetch(fetchUrl);
-        const deckData = await response.json();
-        deckId = deckData.deck_id;
+// Update Game When New Round Begins
+function initNewRound() {
+    // Re-enable Ability to Place A Bet
+    placeBetButton.classList.remove('disabled');
+    placeBetButton.removeAttribute('disabled');
 
-        callback(deckId)
+    // Disable Hit, Stay, Double Buttons
+    hitButton.setAttribute('disabled', true);
+    stayButton.setAttribute('disabled', true);
+    doubleBetButton.setAttribute('disabled', true);
+    hitButton.classList.add('disabled');
+    stayButton.classList.add('disabled');
+    doubleBetButton.classList.add('disabled');
+
+    stayed = false;
+}
+
+// Create Starting Card Elements And Append to DOM
+function createStartingCards(cardsArr, element) {
+    cardsArr.forEach(card => {
+        const cardEl = document.createElement('div');
+        cardEl.classList.add('card');
+
+        const cardImg = document.createElement('img');
+        cardImg.src = card.image;
+
+        cardEl.appendChild(cardImg);
+        element.appendChild(cardEl);
+    });
+}
+
+// Create A Single Card When Player Request Hit
+function createSingleCard(cardsArr, element) {
+    const cardLastIndex = cardsArr.length - 1; // Last Card Index
+
+    const cardEl = document.createElement('div');
+    cardEl.classList.add('card');
+
+    const cardImg = document.createElement('img');
+    cardImg.src = cardsArr[cardLastIndex].image;
+
+    cardEl.appendChild(cardImg);
+    element.appendChild(cardEl); 
+}
+
+// Get A Playing Deck For Start Of Game
+async function getNewDeck(callback) {
+    try {
+        const fetchUrl = `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6`;
+        const res = await fetch(fetchUrl);
+        const data = await res.json();
+        deckId = data.deck_id;
+        callback(deckId);
     } catch (err) {
-        console.error(err)
+        console.log(err);
     }
 }
 
-// Draw 2 Cards for Each Participant(player & dealer)
+// Draw Starting Cards And Add Them to Relevant Array
 function drawStartingCards(deck) {
     fetch(`https://deckofcardsapi.com/api/deck/${deck}/draw/?count=4`)
         .then(res => {
             if (!res.ok) {
-                throw Error(`Could not retrieve data. Response-Status: ${res.status}`);
+                let errorMessage = 'Something went wrong ResponseStatus: ';
+                throw Error(`${errorMessage}${res.status}`);
             }
             return res.json();
         })
         .then(data => {
             const { cards } = data;
-
             cards.forEach((card, index) => {
                 if(index < 2) {
                     playerCards.push(card);
@@ -80,28 +124,17 @@ function drawStartingCards(deck) {
                     dealerCards.push(card);
                 }
             });
-
-            updateGame();
         })
-        .catch(err => console.error(err))
+        .catch(err => console.log(err));
 }
 
-// Get Total of Card Values
-function getCardsTotal(cardsArr, total) {
-    cardsArr.forEach(card => {
-        const cardVal = card.value;
-        total += checkCardValues(cardVal, total);
-    })
-    return total;
-}
-
-// Check Card Values in Blackjack Context
-function checkCardValues(value, sumVal) {
-    switch(value) {
+// Get The Value Of Each Card
+function getCardValue(card) {
+    switch(card) {
+        case 'ACE':
+            return 1;
         case '2':
             return 1;
-        case 'Ace':
-            return 11;
         case '3':
             return 3;
         case '4':
@@ -110,7 +143,7 @@ function checkCardValues(value, sumVal) {
             return 5;
         case '6':
             return 6;
-        case '7': 
+        case '7':
             return 7;
         case '8':
             return 8;
@@ -124,82 +157,75 @@ function checkCardValues(value, sumVal) {
     }
 }
 
-// Update Game State
-function updateGame() {
-    playerTotal = getCardsTotal(playerCards, playerTotal);
-    dealerTotal = getCardsTotal(dealerCards, dealerTotal);
-    displayCards(playerCardsEl, playerCards);
-    displayCards(dealerCardsEl, dealerCards);
-    playerCardsTotalEl.textContent = playerTotal;
-    dealerCardsTotalEl.textContent = dealerTotal;
+// Sum Cards Values
+function sumCardValues(cardsArr, total) {
+    cardsArr.forEach(card => {
+        const cardVal = card.value;
+        total += getCardValue(cardVal);
+    });
+    return total;
 }
 
-// Display Cards For Each Participant
-function displayCards(element, arr) {
-    arr.forEach(arrEl => {
-        const card = document.createElement('div');
-        card.classList.add('card');
-
-        const img = document.createElement('img');
-        img.src = arrEl.image;
-
-        card.appendChild(img)
-
-        element.appendChild(card);
-    })
-}
-
-// Check If Player Got Blackjack
-function checkBlackjack() {
-    if (playerTotal <= 21 && playerTotal > dealerTotal) {
-        message.textContent = "YOU WIN!!!🎊🎉";
-        playerBalance += (betAmount * 2);
-    } else {
+// Check If Player Has BlackJack
+function checkBlackjack(playerSum, dealerSum) {
+    if (playerSum === 21) {
+        message.textContent = "YOU WIN!!!";
+        initNewRound();
+    } else if (playerSum <= 21 && playerSum > dealerSum && playerSum > 15) {
+        message.textContent = "YOU WIN!!!";
+        initNewRound();
+    } else if (stayed === true && playerSum <= 21 && playerSum > dealerSum) {
+        message.textContent = "YOU WIN!!!";
+        initNewRound();
+    } else if (playerSum > 21) {
         message.textContent = "YOU LOSE!";
+        initNewRound();
+    } else if (dealerSum <= 21 && dealerSum > playerSum && playerSum > 15) {
+        message.textContent = "YOU LOSE!";
+        initNewRound();
     }
-
-    playerTotal = 0;
-    dealerTotal = 0;
-    betAmount = 0;
 }
 
-// Draw One Card on Hit
-function drawSingleCard() {
-    fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=2`)
-        .then(res => {
-            if (!res.ok) {
-                throw Error(`Could not retrieve data. Response-Status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(data => {
-            playerCards.push(data.cards[0]);
-            dealerCards.push(data.cards[1]);
-            updateHit();
-        });
+// Double The Bet When Player Requests Double
+function doubleBet() {
+    let doubledAmount = betAmount * 2;
+    if (doubledAmount < 0) { // Makes balance red for short period
+        playerBalanceEl.style.color = 'red';
+        setTimeout(() => {
+            playerBalanceEl.style.color = 'white';
+        }, 450);
+    } else {
+        playerBalance -= betAmount;
+        betAmount *= 2;
+    }
 }
 
-// Update Game on Hit
-function updateHit() {
-    createCard(playerCardsEl, playerCards);
-    createCard(dealerCardsEl, dealerCards);
+// Draw Single Card On Hit 
+async function drawCard(deck) {
+    const fetchUrl = `https://deckofcardsapi.com/api/deck/${deck}/draw/?count=2`;
+    const res = await fetch(fetchUrl);
+    const data = await res.json();
+    const cards = await data.cards;
 
-    playerTotal = getCardsTotal(playerCards, playerTotal);
-    dealerTotal = getCardsTotal(dealerCards, dealerTotal);
-    playerCardsTotalEl.textContent = playerTotal;
-    dealerCardsTotalEl.textContent = dealerTotal;
+    playerCards.push(cards[0]);
+    dealerCards.push(cards[1]);
+    createSingleCard(playerCards, playerCardsEl);
+    createSingleCard(dealerCards, dealerCardsEl);
 }
 
-function createCard(elem, arr) {
-    const card = document.createElement('div');
-    card.classList.add('card');
 
-    const img = document.createElement('img');
-    img.src = arr[arr.lenght - 1].image;
 
-    card.appendChild(img);
-    elem.appendChild(card);
-}
+
+
+
+
+
+
+
+
+
+
+
 
 // Increase and/or decrease bet and balance accordingly
 function lowerBet() {
@@ -221,8 +247,5 @@ function raiseBet() {
 }
 
 // Add Event Listeners For Buttons
-placeBetButton.addEventListener('click', startGame);
-stayButton.addEventListener('click', checkBlackjack);
-hitButton.addEventListener('click', drawSingleCard)
 decreaseBetButton.addEventListener('click', lowerBet);
 increaseBetButton.addEventListener('click', raiseBet);
