@@ -11,8 +11,8 @@ let hit = false;
 // Participant Stats
 let playerTotal = 0;
 let dealerTotal = 0;
-const playerCards = [];
-const dealerCards = [];
+let playerCards = [];
+let dealerCards = [];
 
 // Participant Stats Elements
 const message = document.getElementById('message');
@@ -78,16 +78,36 @@ function initNewRound() {
         betAmount = 0;
         playerBalanceEl.textContent = playerBalance;
         betAmountEl.textContent = betAmount;
+        
+        document.querySelectorAll('.card-back')
+            .forEach(element => {
+            element.classList.remove('hidden');
+        });
     } else if (message.textContent === "YOU WIN!!!") {
         let myBetAmountDoubled = betAmount * 2;
         playerBalance += myBetAmountDoubled;
         betAmount = 0;
         playerBalanceEl.textContent = playerBalance;
         betAmountEl.textContent = betAmount;
+        
+        document.querySelectorAll('.card-back')
+            .forEach(element => {
+            element.classList.remove('hidden');
+        });
     } else if (message.textContent === "YOU LOSE!") {
         betAmount = 0;
         betAmountEl.textContent = betAmount;
+        
+        document.querySelectorAll('.card-back')
+            .forEach(element => {
+            element.classList.remove('hidden');
+        });
     } else if (playerBalance <= 0) {
+        document.querySelectorAll('.card-back')
+            .forEach(element => {
+            element.classList.remove('hidden');
+        });
+        
         initGame();
     }
 }
@@ -169,7 +189,7 @@ function drawStartingCards(deck) {
             dealerTotal = sumCardValues(dealerCards, dealerTotal);
             displayCardTotal(playerTotal, playerCardsTotalEl);
             displayCardTotal(dealerTotal, dealerCardsTotalEl);
-            checkBlackjack(playerTotal, dealerTotal);
+            checkBlackjack();
         })
         .catch(err => console.log(err));
 }
@@ -218,32 +238,32 @@ function sumCardValues(cardsArr, participantTotal) {
 }
 
 // Check If Player Has BlackJack
-function checkBlackjack(playerSum, dealerSum) {
-    if (playerSum === dealerSum) {
+function checkBlackjack() {
+    if (playerTotal === dealerTotal) {
         message.textContent = "Its a draw";
         initNewRound();
-    } else if (playerSum === 21 && dealerSum !== 21) {
+    } else if (playerTotal === 21 && dealerTotal !== 21) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (dealerSum === 21 && playerSum !== 21) {
+    } else if (dealerTotal === 21 && playerTotal !== 21) {
         message.textContent = "YOU LOSE!"
         initNewRound();
-    } else if (playerSum > 15 && playerSum > dealerSum && hit || stay && playerSum <= 21) {
+    } else if (playerTotal > 15 && playerTotal > dealerTotal && hit || stay && playerTotal <= 21) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (dealerSum > 15 && dealerSum > playerSum && hit || stay && dealerSum <= 21) {
+    } else if (dealerTotal > 15 && dealerTotal > playerTotal && hit || stay && dealerTotal <= 21) {
         message.textContent = "YOU LOSE!"
         initNewRound();
-    } else if (playerSum <= 21 && playerSum > dealerSum && stay) {
+    } else if (playerTotal <= 21 && playerTotal > dealerTotal && stay) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (dealerSum <= 21 && dealerSum > playerSum && stay) {
+    } else if (dealerTotal <= 21 && dealerTotal > playerTotal && stay) {
         message.textContent = "YOU LOSE!";
         initNewRound();
-    } else if (playerSum <= 21 && playerSum > 18 && dealerSum <= 18) {
+    } else if (playerTotal <= 21 && playerTotal > 18 && dealerTotal <= 18) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (dealerSum <= 21 && dealerSum > 18 && playerSum <= 18) {
+    } else if (dealerTotal <= 21 && dealerTotal > 18 && playerTotal <= 18) {
         message.textContent = "YOU LOSE!";
         initNewRound();
     }
@@ -278,7 +298,7 @@ async function drawCard(deck) {
     dealerTotal = sumCardValues(dealerCards, dealerTotal);
     displayCardTotal(playerTotal, playerCardsTotalEl);
     displayCardTotal(dealerTotal, dealerCardsTotalEl);
-    checkBlackjack(playerTotal, dealerTotal);
+    checkBlackjack();
 }
 
 // Increase and/or decrease bet and balance accordingly
@@ -321,10 +341,10 @@ placeBetButton.addEventListener('click', () => {
             card.remove();
         })
 
-        if (currentRound === 1) {
-            initGame();
-        } else {
+        if (currentRound > 1) {
             initNewRound();
+        } else {
+            initGame();
         }
         getNewDeck(drawStartingCards);
     }
@@ -333,7 +353,7 @@ placeBetButton.addEventListener('click', () => {
 // Stay Button Event 
 stayButton.addEventListener('click', () => {
     stay = true;
-    drawCard(deckId);
+    checkBlackjack();
 });
 
 // Hit Button Event 
