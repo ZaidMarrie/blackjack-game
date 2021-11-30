@@ -6,6 +6,7 @@ let betAmount = 0;
 let currentRound = 1;
 let playerBalance = 100;
 let stayed = false;
+let hit = false;
 
 // Participant Stats
 let playerTotal = 0;
@@ -33,7 +34,16 @@ const increaseBetButton = document.getElementById('increase-bet');
 const playerBalanceEl = document.getElementById('player-balance');
 
 // Update Game Start When A Bet Is Placed
-function initGame(round) {
+function initGame() {
+    betAmount = 0;
+    currentRound = 1;
+    playerBalance = 100;
+    stayed = false;
+    hit = false;
+    playerTotal = 0;
+    dealerTotal = 0;
+    playerCards = [];
+    dealerCards = [];
     // Disable Placebet When Round Begins
     placeBetButton.classList.add('disabled');
     placeBetButton.setAttribute('disabled', true);
@@ -62,10 +72,28 @@ function initNewRound() {
     doubleBetButton.classList.add('disabled');
 
     stayed = false;
+    hit = false;
+    if (message.textContent === 'Its a draw') {
+        playerBalance += betAmount;
+        betAmount = 0;
+        playerBalanceEl.textContent = playerBalance;
+        betAmountEl.textContent = betAmount;
+    } else if (message.textContent === "YOU WIN!!!") {
+        let myBetAmountDoubled = betAmount * 2;
+        playerBalance += myBetAmountDoubled;
+        betAmount = 0;
+        playerBalanceEl.textContent = playerBalance;
+        betAmountEl.textContent = betAmount;
+    } else if (message.textContent === "YOU LOSE!") {
+        betAmount = 0;
+        betAmountEl.textContent = betAmount;
+    } else if (playerBalance <= 0) {
+        initGame();
+    }
 }
 
 // Create Starting Card Elements And Append to DOM
-function createStartingCards(cardsArr, element) {
+async function createStartingCards(cardsArr, element) {
     cardsArr.forEach(card => {
         const cardEl = document.createElement('div');
         cardEl.classList.add('card');
@@ -75,7 +103,12 @@ function createStartingCards(cardsArr, element) {
 
         cardEl.appendChild(cardImg);
         element.appendChild(cardEl);
-    });
+    });   
+}
+
+// Display Card totals
+function displayCardTotal(participantTotal, element) {
+    element.textContent = participantTotal;
 }
 
 // Create A Single Card When Player Request Hit
@@ -105,7 +138,12 @@ async function getNewDeck(callback) {
     }
 }
 
-// Draw Starting Cards And Add Them to Relevant Array
+/**
+ * Get starting cards from new deck created by getNewDeck
+ * Display those cards
+ * Sum the total of those cards
+ * Display the total
+ */
 function drawStartingCards(deck) {
     fetch(`https://deckofcardsapi.com/api/deck/${deck}/draw/?count=4`)
         .then(res => {
@@ -124,6 +162,14 @@ function drawStartingCards(deck) {
                     dealerCards.push(card);
                 }
             });
+
+            createStartingCards(playerCards, playerCardsEl);
+            createStartingCards(dealerCards, dealerCardsEl);
+            playerTotal = sumCardValues(playerCards, playerTotal);
+            dealerTotal = sumCardValues(dealerCards, dealerTotal);
+            displayCardTotal(playerTotal, playerCardsTotalEl);
+            displayCardTotal(dealerTotal, dealerCardsTotalEl);
+            checkBlackjack(playerTotal, dealerTotal);
         })
         .catch(err => console.log(err));
 }
@@ -132,7 +178,7 @@ function drawStartingCards(deck) {
 function getCardValue(card) {
     switch(card) {
         case 'ACE':
-            return 1;
+            return 11;
         case '2':
             return 1;
         case '3':
@@ -158,29 +204,46 @@ function getCardValue(card) {
 }
 
 // Sum Cards Values
-function sumCardValues(cardsArr, total) {
+function sumCardValues(cardsArr, participantTotal) {
+    let total = 0;
     cardsArr.forEach(card => {
         const cardVal = card.value;
         total += getCardValue(cardVal);
     });
+    participantTotal = total;
+    /* 
+    *The above line doesn't change the value of the variable passed as participantTotal, I'm *assuming it's due to the concepts of pass by reference and value 
+    */
     return total;
 }
 
 // Check If Player Has BlackJack
 function checkBlackjack(playerSum, dealerSum) {
-    if (playerSum === 21) {
+    if (playerSum === dealerSum) {
+        message.textContent = "Its a draw";
+        initNewRound();
+    } else if (playerSum === 21 && dealerSum !== 21) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (playerSum <= 21 && playerSum > dealerSum && playerSum > 15) {
+    } else if (dealerSum === 21 && playerSum !== 21) {
+        message.textContent = "YOU LOSE!"
+        initNewRound();
+    } else if (playerSum > 15 && playerSum > dealerSum && hit || stay && playerSum <= 21) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (stayed === true && playerSum <= 21 && playerSum > dealerSum) {
+    } else if (dealerSum > 15 && dealerSum > playerSum && hit || stay && dealerSum <= 21) {
+        message.textContent = "YOU LOSE!"
+        initNewRound();
+    } else if (playerSum <= 21 && playerSum > dealerSum && stay) {
         message.textContent = "YOU WIN!!!";
         initNewRound();
-    } else if (playerSum > 21) {
+    } else if (dealerSum <= 21 && dealerSum > playerSum && stay) {
         message.textContent = "YOU LOSE!";
         initNewRound();
-    } else if (dealerSum <= 21 && dealerSum > playerSum && playerSum > 15) {
+    } else if (playerSum <= 21 && playerSum > 18 && dealerSum <= 18) {
+        message.textContent = "YOU WIN!!!";
+        initNewRound();
+    } else if (dealerSum <= 21 && dealerSum > 18 && playerSum <= 18) {
         message.textContent = "YOU LOSE!";
         initNewRound();
     }
@@ -211,21 +274,12 @@ async function drawCard(deck) {
     dealerCards.push(cards[1]);
     createSingleCard(playerCards, playerCardsEl);
     createSingleCard(dealerCards, dealerCardsEl);
+    playerTotal = sumCardValues(playerCards, playerTotal);
+    dealerTotal = sumCardValues(dealerCards, dealerTotal);
+    displayCardTotal(playerTotal, playerCardsTotalEl);
+    displayCardTotal(dealerTotal, dealerCardsTotalEl);
+    checkBlackjack(playerTotal, dealerTotal);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Increase and/or decrease bet and balance accordingly
 function lowerBet() {
@@ -249,3 +303,48 @@ function raiseBet() {
 // Add Event Listeners For Buttons
 decreaseBetButton.addEventListener('click', lowerBet);
 increaseBetButton.addEventListener('click', raiseBet);
+
+// Placebet button Event
+placeBetButton.addEventListener('click', () => {
+    if (betAmount === 0) {
+        message.textContent = 'Cannot place a bet of 0';
+    } else {
+        message.textContent = '';
+
+        const initialCards = document.querySelectorAll('.card-back');
+        initialCards.forEach(element => {
+            element.classList.add('hidden')
+        });
+
+        const previousCards = document.querySelectorAll('.card');
+        previousCards.forEach(card => {
+            card.remove();
+        })
+
+        if (currentRound === 1) {
+            initGame();
+        } else {
+            initNewRound();
+        }
+        getNewDeck(drawStartingCards);
+    }
+})
+
+// Stay Button Event 
+stayButton.addEventListener('click', () => {
+    stay = true;
+    drawCard(deckId);
+});
+
+// Hit Button Event 
+hitButton.addEventListener('click', () => {
+    hit = true;
+    drawCard(deckId);
+});
+
+// Double Button Event 
+doubleBetButton.addEventListener('click', () => {
+    doubleBet();
+    hit = true;
+    drawCard(deckId);
+});
