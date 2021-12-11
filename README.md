@@ -1,6 +1,6 @@
 # Blackjack Game
 
-This is a simple blackjack game created with vanilla JavaScript. The game is from _scrimba's_ frontend developer path course.
+A blackjack game built as part of **Scrimba.com**'s Frontend Career Path Course. This game I initially built similar to the game built within the course, until I learned about APIs. After learning about APIs I completely rebuilt the the game with the **deck-of-cards-api**
 
 ## My Process
 
@@ -16,24 +16,25 @@ I learned and practiced the following concepts:
 
 - Arrays
 - Objects
-- Booleans
 - Conditional statements
 - Comparison operators
 - Logical operators
-- For loops
-- The Math object
-- Return statements
+- Fetch API
+- Async/Await 
 
+**A snippet of the code I used**
 ```javascript
-function getRandomCard() {
-    let randomNumber = Math.floor( Math.random()*13 ) + 1
-    if (randomNumber > 10) {
-        return 10
-    } else if (randomNumber === 1) {
-        return 11
-    } else {
-        return randomNumber
-    }
+async function createStartingCards(cardsArr, element) {
+    cardsArr.forEach(card => {
+        const cardEl = document.createElement('div');
+        cardEl.classList.add('card');
+
+        const cardImg = document.createElement('img');
+        cardImg.src = card.image;
+
+        cardEl.appendChild(cardImg);
+        element.appendChild(cardEl);
+    });   
 }
 ```
 
